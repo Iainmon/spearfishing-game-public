@@ -41,11 +41,13 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKey(KeyCode.E))
         {
-            transform.rotation *= Quaternion.AngleAxis(-1 * rollSpeed, transform.forward);
+            transform.RotateAround(transform.position, transform.forward, -1 * rollSpeed);
+            //transform.rotation *= Quaternion.AngleAxis(-1 * rollSpeed, transform.forward);
         }
         if (Input.GetKey(KeyCode.Q))
         {
-            transform.rotation *= Quaternion.AngleAxis(1 * rollSpeed, transform.forward);
+            transform.RotateAround(transform.position, transform.forward, 1 * rollSpeed);
+            //transform.rotation *= Quaternion.AngleAxis(1 * rollSpeed, transform.forward);
         }
 
         float movementY = Input.GetAxis("Vertical");
