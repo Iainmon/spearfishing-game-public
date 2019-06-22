@@ -43,15 +43,32 @@ public class TerrainObjectPlacer : MonoBehaviour
         float posy = Terrain.activeTerrain.SampleHeight(new Vector3(posx, 0, posz)); // get the terrain height at the random position
         if (posy < posMax && posy > posMin)
         {
-            GameObject newObject = (GameObject)Instantiate(objectToPlace, new Vector3(posx, posy - 610, posz), Quaternion.identity); // create object
-            if (objectRotationOffset != 0) {
-                newObject.transform.eulerAngles = new Vector3(objectRotationOffset, 0, 0);
-            }
+            PlaceCoralHead(posx, posy, posz);
             numberOfPlacedObjects++;
         }
         else
         {
             PlaceObject();
+        }
+    }
+
+    void PlaceCoralHead(float xPos, float yPos, int zPos) {
+        int coralHeadDensity = Random.Range(1, 6);
+        for (int i = 0; i < coralHeadDensity; i++) {
+
+            int coralOffsetX = Random.Range(-10, 10);
+            int coralOffsetZ = Random.Range(-10, 10);
+
+            float coralSize = Random.Range(0.1f, 1.2f);
+            //coralSize = Mathf.Lerp(0.1f, 1.2f, Mathf.InverseLerp(coralSize, 1, 100));
+
+            GameObject newObject = (GameObject)Instantiate(objectToPlace, new Vector3(xPos + coralOffsetX, yPos + terrain.transform.position.y, zPos + coralOffsetZ), Quaternion.identity); // create object
+            
+            newObject.transform.localScale = new Vector3(coralSize, coralSize, coralSize);
+
+            if (objectRotationOffset != 0) {
+                newObject.transform.eulerAngles = new Vector3(objectRotationOffset, 0, 0);
+            }
         }
     }
 }
