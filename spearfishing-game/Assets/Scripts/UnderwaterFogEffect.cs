@@ -3,26 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class UnderwaterFogEffect : MonoBehaviour {
-    public float waterHeight;
 
-    private bool isUnderwater;
-    public Color fogColor;
-    
+    public float waterHeight;
+    public float maxDepth;
+
+    public Color shallowColor;
+    public Color deepColor;
+
+    public float shallowDensity;
+    public float deepDensity;
+
+
+    void Start() {
+        RenderSettings.fog = true;
+    }
+
     void Update() {
-        if ((transform.position.y < waterHeight) != isUnderwater) {
-            isUnderwater = transform.position.y < waterHeight;
-            if (isUnderwater) SetUnderwater();
-            if (!isUnderwater) SetNormal();
+        if (GetDepth() <= 0) {
+            RenderSettings.fogDensity = 0;
+        }
+        else {
+            Color fogColor = Color.Lerp(shallowColor, deepColor, GetDepth() / maxDepth);
+            float fogDensity = Mathf.Lerp(shallowDensity, deepDensity, GetDepth() / maxDepth);
+            RenderSettings.fogColor = fogColor;
+            RenderSettings.fogDensity = fogDensity;
         }
     }
 
-    void SetNormal() {
-        RenderSettings.fog = false;
+    float GetDepth() {
+        return waterHeight - transform.position.y;
     }
 
-    void SetUnderwater() {
-        RenderSettings.fog = true;
-        RenderSettings.fogColor = fogColor;
-        RenderSettings.fogDensity = 0.05f;
-    }
 }
