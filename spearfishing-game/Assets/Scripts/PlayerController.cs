@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     public float sideSpeedCap;
     public float rollSpeed;
     public float lookSpeed = 3;
-    private Vector2 rotation = Vector2.zero;
+    private Vector3 rotation = Vector3.zero;
     private float speedCapDifference;
     private Rigidbody rb;
 
@@ -32,9 +32,8 @@ public class PlayerController : MonoBehaviour
     {
         rotation.y += Input.GetAxis("Mouse X");
         rotation.x += -Input.GetAxis("Mouse Y");
-        rotation.x = Mathf.Clamp(rotation.x, -15f, 15f);
-        transform.eulerAngles = new Vector3(rotation.x, rotation.y) * lookSpeed;
-        //transform.localRotation = Quaternion.Euler(rotation.x * lookSpeed, 0, 0);
+        rotation.x = Mathf.Clamp(rotation.x, -30f, 30f);
+        transform.eulerAngles = new Vector3(rotation.x * lookSpeed, rotation.y * lookSpeed, transform.eulerAngles.z);
     }
 
     void FixedUpdate()
