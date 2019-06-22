@@ -48,7 +48,7 @@ public class FishController : MonoBehaviour
                 }
                 break;
             case FishStates.Fleeing:
-                transform.rotation = Quaternion.LookRotation(player.transform.position - transform.position);
+                transform.rotation = Quaternion.LookRotation(transform.position - player.transform.position);
                 GetComponent<Rigidbody>().velocity = transform.forward * fleeSpeed;
                 break;
         }
