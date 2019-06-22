@@ -1,44 +1,3 @@
-// using UnityEngine;
-// using UnityEngine.UI;
-// using System.Collections;
-
-// public class PlayerController : MonoBehaviour
-// {
-
-//     public float speed;
-
-//     private Rigidbody rb;
-//     private int count;
-
-//     public float oxegenLevel;
-
-//     void Start()
-//     {
-//         rb = GetComponent<Rigidbody>();
-//         count = 0;
-//     }
-
-//     void FixedUpdate()
-//     {
-//         float moveHorizontal = Input.GetAxis("Horizontal");
-//         float moveVertical = Input.GetAxis("Vertical");
-
-//         Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-
-//         rb.AddForce(movement * speed);
-//     }
-
-//     void OnTriggerEnter(Collider other)
-//     {
-//         if (other.gameObject.CompareTag("Pick Up"))
-//         {
-//             other.gameObject.SetActive(false);
-//             count = count + 1;
-//         }
-//     }
-
-// }
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -49,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public float speed;
     public float forwardSpeedCap;
     public float sideSpeedCap;
+    public float rollSpeed;
     private float speedCapDifference;
     private Rigidbody rb;
 
@@ -56,13 +16,39 @@ public class PlayerController : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
     }
-    void Start() {
+    void Start()
+    {
         rb = GetComponent<Rigidbody>();
         speedCapDifference = sideSpeedCap / forwardSpeedCap;
     }
 
-    void FixedUpdate() {
-        
+    void Update()
+    {
+        Look();
+    }
+    public float lookSpeed = 3;
+    private Vector2 rotation = Vector2.zero;
+    public void Look()
+    {
+        rotation.y += Input.GetAxis("Mouse X");
+        rotation.x += -Input.GetAxis("Mouse Y");
+        rotation.x = Mathf.Clamp(rotation.x, -15f, 15f);
+        transform.eulerAngles = new Vector2(0, rotation.y) * lookSpeed;
+        Camera.main.transform.localRotation = Quaternion.Euler(rotation.x * lookSpeed, 0, 0);
+    }
+
+    void FixedUpdate()
+    {
+
+        if (Input.GetKey(KeyCode.E))
+        {
+            transform.rotation *= Quaternion.AngleAxis(-1 * rollSpeed, transform.forward);
+        }
+        if (Input.GetKey(KeyCode.Q))
+        {
+            transform.rotation *= Quaternion.AngleAxis(1 * rollSpeed, transform.forward);
+        }
+
         float movementY = Input.GetAxis("Vertical");
         float movementX = Input.GetAxis("Horizontal");
 
@@ -72,15 +58,19 @@ public class PlayerController : MonoBehaviour
         Vector3 forwardVelocity = new Vector3();
         Vector3 sideVelocity = new Vector3();
 
-        if (forwardMagnitude < forwardSpeedCap) {
+        if (forwardMagnitude < forwardSpeedCap)
+        {
             forwardVelocity = transform.forward * movementY * speed;
         }
-        if (sideMagnitude < sideSpeedCap) {
+        if (sideMagnitude < sideSpeedCap)
+        {
             sideVelocity = transform.right * movementX * (speed * speedCapDifference);
         }
-        if (forwardVelocity.magnitude > 0 || sideVelocity.magnitude > 0) {
+        if (forwardVelocity.magnitude > 0 || sideVelocity.magnitude > 0)
+        {
             rb.AddForce(forwardVelocity + sideVelocity);
         }
+
     }
 
 }
