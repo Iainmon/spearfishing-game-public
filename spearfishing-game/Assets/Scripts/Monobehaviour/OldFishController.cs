@@ -2,61 +2,54 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FishController : MonoBehaviour
-{
 
-    //Public variables
+public class OldFishController : MonoBehaviour {
+
+    FishBehaviour.Chain fishChain;
     public string fishName;
     public float alertDistance;
-    public float swimSpeed;
-    public float fleeSpeed;
-    
-    //Gameobjects
+
     GameObject player;
 
-    //LSM
-    public enum FishStates {Living, Fleeing}
+    public enum FishStates { EnterLiving, Living, EnterFleeing, Fleeing }
     [System.NonSerialized]
-    public FishStates state = FishStates.Living;
-
-    //Fish Motivators
-    [System.NonSerialized]
-    public float fear = 0;
-    public float maxFear = 100;
-    [System.NonSerialized]
-    public float hunger = 0;
-    public float maxHunger = 100;
+    public FishStates state = FishStates.EnterLiving;
 
 
     void Start() {
+        fishChain = FishBehaviour.GetChain(this, fishName);
         player = GameObject.FindGameObjectWithTag("Player");
     }
 
 
     void Update() {
-        switch (state) {
-            case FishStates.Living:
-                float rotX = Mathf.PerlinNoise(Time.time / 8, 1000) * 360;
-                float rotY = Mathf.PerlinNoise(Time.time / 8, 2000) * 360;
-                float rotZ = Mathf.PerlinNoise(Time.time / 8, 3000) * 360;
-                transform.eulerAngles = new Vector3(rotX, rotY, rotZ);
-                GetComponent<Rigidbody>().velocity = transform.forward * swimSpeed;
 
+        switch (state) {
+
+            case FishStates.EnterLiving:
+                StartCoroutine(AILoop());
+                state = FishStates.Living;
+                break;
+
+            case FishStates.Living:
                 if (IsAlertedBy(player)) {
-                    fear = 100;
+                    StopCoroutine(AILoop());
                     state = FishStates.Fleeing;
                 }
                 break;
+
+            case FishStates.EnterFleeing:
+                break;
             case FishStates.Fleeing:
-                transform.rotation = Quaternion.LookRotation(player.transform.position - transform.position);
-                GetComponent<Rigidbody>().velocity = transform.forward * fleeSpeed;
                 break;
         }
     }
 
+
     bool IsAlertedBy(GameObject target) {
         return Vector3.Distance(transform.position, player.transform.position) <= alertDistance && CanSee(target);
     }
+
 
     bool CanSee(GameObject target) {
         RaycastHit[] hits;
@@ -70,5 +63,26 @@ public class FishController : MonoBehaviour
         }
 
         return true;
+    }
+
+
+    public IEnumerator AILoop() {
+        while (true) {
+            yield return StartCoroutine(fishChain.GetCurrentAction()());
+            fishChain.Step();
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
+    // Fish Action Functions
+    public IEnumerator Swim() {
+
+
+        yield break;
+    }
+
+    public IEnumerator Eat() {
+        Debug.Log("Eat");
+        yield break;
     }
 }
