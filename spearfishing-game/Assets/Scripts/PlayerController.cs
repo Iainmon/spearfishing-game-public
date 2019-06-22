@@ -47,7 +47,9 @@ public class PlayerController : MonoBehaviour
 {
 
     public float speed;
-    public float speedCap;
+    public float forwardSpeedCap;
+    public float sideSpeedCap;
+    private float speedCapDifference;
     private Rigidbody rb;
 
     void Awake()
@@ -55,11 +57,8 @@ public class PlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
     void Start() {
-        
         rb = GetComponent<Rigidbody>();
-
-        rb.velocity = new Vector3(10.0f, 10.0f, 10.0f);
-
+        speedCapDifference = sideSpeedCap / forwardSpeedCap;
     }
 
     void FixedUpdate() {
@@ -67,8 +66,20 @@ public class PlayerController : MonoBehaviour
         float movementY = Input.GetAxis("Vertical");
         float movementX = Input.GetAxis("Horizontal");
 
-        if (!(rb.velocity.magnitude > speedCap)) {
-            rb.AddForce((transform.forward * movementY * speed) + (transform.right * movementX * speed));
+        float forwardMagnitude = transform.forward.magnitude;
+        float sideMagnitude = transform.right.magnitude;
+
+        Vector3 forwardVelocity = new Vector3();
+        Vector3 sideVelocity = new Vector3();
+
+        if (forwardMagnitude < forwardSpeedCap) {
+            forwardVelocity = transform.forward * movementY * speed;
+        }
+        if (sideMagnitude < sideSpeedCap) {
+            sideVelocity = transform.right * movementX * (speed * speedCapDifference);
+        }
+        if (forwardVelocity.magnitude > 0 || sideVelocity.magnitude > 0) {
+            rb.AddForce(forwardVelocity + sideVelocity);
         }
     }
 
