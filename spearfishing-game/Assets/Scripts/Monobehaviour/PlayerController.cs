@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     public float strafeAccel;
     public float sprintSpeedMultiplier;
     public float sprintAccelMultiplier;
+    public float sneakSpeedMultiplier;
+    public float sneakAccelMultiplier;
 
     [Header("Rotation")]
     public float rollAccel;
@@ -26,8 +28,6 @@ public class PlayerController : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
     }
-
-
 
     void FixedUpdate() {
         if (transform.position.y <= 0) {
@@ -59,30 +59,34 @@ public class PlayerController : MonoBehaviour
 
     void Move() {
         Rigidbody rb = GetComponent<Rigidbody>();
-        float _sprintSpeedMultiplier = 1;
-        float _sprintAccelMultiplier = 1;
+        float _speedMultiplier = 1;
+        float _accelMultiplier = 1;
         if (Input.GetKey(KeyCode.LeftShift)) {
-            _sprintSpeedMultiplier = sprintSpeedMultiplier;
-            _sprintAccelMultiplier = sprintAccelMultiplier;
+            _speedMultiplier *= sprintSpeedMultiplier;
+            _accelMultiplier *= sprintAccelMultiplier;
+        }
+        if (Input.GetKey(KeyCode.LeftControl)){
+            _speedMultiplier *= sneakSpeedMultiplier;
+            _accelMultiplier *= sneakAccelMultiplier;
         }
 
         if (Input.GetKey(KeyCode.W)) {
-            rb.AddForce(transform.forward * forwardAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+            rb.AddForce(transform.forward * forwardAccel * Time.fixedDeltaTime * _accelMultiplier / rb.mass);
         }
         if (Input.GetKey(KeyCode.S)) {
-            rb.AddForce(-transform.forward * backwardAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+            rb.AddForce(-transform.forward * backwardAccel * Time.fixedDeltaTime * _accelMultiplier / rb.mass);
         }
         if (Input.GetKey(KeyCode.A)) {
-            rb.AddForce(-transform.right * strafeAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+            rb.AddForce(-transform.right * strafeAccel * Time.fixedDeltaTime * _accelMultiplier / rb.mass);
         }
         if (Input.GetKey(KeyCode.D)) {
-            rb.AddForce(transform.right * strafeAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+            rb.AddForce(transform.right * strafeAccel * Time.fixedDeltaTime * _accelMultiplier / rb.mass);
         }
         if (Input.GetKey(KeyCode.Space)) {
-            rb.AddForce(transform.up * strafeAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+            rb.AddForce(transform.up * strafeAccel * Time.fixedDeltaTime * _accelMultiplier / rb.mass);
         }
-        if (Input.GetKey(KeyCode.LeftControl)) {
-            rb.AddForce(-transform.up * strafeAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+        if (Input.GetKey(KeyCode.C)) {
+            rb.AddForce(-transform.up * strafeAccel * Time.fixedDeltaTime * _accelMultiplier / rb.mass);
         }
     }
 
