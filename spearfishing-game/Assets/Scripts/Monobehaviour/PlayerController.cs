@@ -5,73 +5,106 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 
-    public float speed;
-    public float forwardSpeedCap;
-    public float sideSpeedCap;
-    public float rollSpeed;
-    public float lookSpeed = 3;
-    private Vector3 rotation = Vector3.zero;
-    private float speedCapDifference;
-    private Rigidbody rb;
+    [Header("Movement")]
+    public float maxSpeed;
+    public float forwardAccel;
+    public float backwardAccel;
+    public float strafeAccel;
+    public float sprintSpeedMultiplier;
+    public float sprintAccelMultiplier;
 
-    void Awake()
+    [Header("Rotation")]
+    public float rollAccel;
+    public float lookSpeed;
+
+    [Header("Enviroment")]
+    public float underwaterDrag;
+    public float underwaterAngularDrag;
+    
+   
+    void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
     }
-    void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-        speedCapDifference = sideSpeedCap / forwardSpeedCap;
+
+
+
+    void FixedUpdate() {
+        if (transform.position.y <= 0) {
+            Move();
+            UnderwaterPhysics();
+        }
+        else {
+            SurfacePhysics();
+        }
+
+        Rotate();
+        CapSpeed();
     }
 
-    void Update()
-    {
-        Look();
-    }
-    public void Look()
-    {
-        rotation.y += Input.GetAxis("Mouse X");
-        rotation.x += -Input.GetAxis("Mouse Y");
-        rotation.x = Mathf.Clamp(rotation.x, -30f, 30f);
-        transform.eulerAngles = new Vector3(rotation.x * lookSpeed, rotation.y * lookSpeed, transform.eulerAngles.z);
+
+    void UnderwaterPhysics() {
+        GetComponent<Rigidbody>().useGravity = false;
+        GetComponent<Rigidbody>().angularDrag = underwaterAngularDrag;
+        GetComponent<Rigidbody>().drag = underwaterDrag;
     }
 
-    void FixedUpdate()
-    {
 
-        if (Input.GetKey(KeyCode.E))
-        {
-            transform.RotateAround(transform.position, transform.forward, -1 * rollSpeed);
-            //transform.rotation *= Quaternion.AngleAxis(-1 * rollSpeed, transform.forward);
-        }
-        if (Input.GetKey(KeyCode.Q))
-        {
-            transform.RotateAround(transform.position, transform.forward, 1 * rollSpeed);
-            //transform.rotation *= Quaternion.AngleAxis(1 * rollSpeed, transform.forward);
-        }
-
-        float movementY = Input.GetAxis("Vertical");
-        float movementX = Input.GetAxis("Horizontal");
-
-        float forwardMagnitude = transform.forward.magnitude;
-        float sideMagnitude = transform.right.magnitude;
-
-        Vector3 forwardVelocity = new Vector3();
-        Vector3 sideVelocity = new Vector3();
-
-        if (forwardMagnitude < forwardSpeedCap)
-        {
-            forwardVelocity = transform.forward * movementY * speed;
-        }
-        if (sideMagnitude < sideSpeedCap)
-        {
-            sideVelocity = transform.right * movementX * (speed * speedCapDifference);
-        }
-        if (forwardVelocity.magnitude > 0 || sideVelocity.magnitude > 0)
-        {
-            rb.AddForce(forwardVelocity + sideVelocity);
-        }
-
+    void SurfacePhysics() {
+        GetComponent<Rigidbody>().useGravity = true;
+        GetComponent<Rigidbody>().angularDrag = 0;
+        GetComponent<Rigidbody>().drag = 0;
     }
 
+
+    void Move() {
+        Rigidbody rb = GetComponent<Rigidbody>();
+        float _sprintSpeedMultiplier = 1;
+        float _sprintAccelMultiplier = 1;
+        if (Input.GetKey(KeyCode.LeftShift)) {
+            _sprintSpeedMultiplier = sprintSpeedMultiplier;
+            _sprintAccelMultiplier = sprintAccelMultiplier;
+        }
+
+        if (Input.GetKey(KeyCode.W)) {
+            rb.AddForce(transform.forward * forwardAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+        }
+        if (Input.GetKey(KeyCode.S)) {
+            rb.AddForce(-transform.forward * backwardAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+        }
+        if (Input.GetKey(KeyCode.A)) {
+            rb.AddForce(-transform.right * strafeAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+        }
+        if (Input.GetKey(KeyCode.D)) {
+            rb.AddForce(transform.right * strafeAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+        }
+        if (Input.GetKey(KeyCode.Space)) {
+            rb.AddForce(transform.up * strafeAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+        }
+        if (Input.GetKey(KeyCode.LeftControl)) {
+            rb.AddForce(-transform.up * strafeAccel * Time.fixedDeltaTime * _sprintAccelMultiplier / rb.mass);
+        }
+    }
+
+
+    void Rotate() {
+        transform.RotateAround(transform.position, transform.up, Input.GetAxis("Mouse X") * lookSpeed * Time.fixedDeltaTime);
+        transform.RotateAround(transform.position, transform.right, -Input.GetAxis("Mouse Y") * lookSpeed * Time.fixedDeltaTime);
+
+        if (Input.GetKey(KeyCode.Q)) {
+            transform.RotateAround(transform.position, transform.forward, rollAccel * Time.fixedDeltaTime);
+        }
+        if (Input.GetKey(KeyCode.E)) {
+            transform.RotateAround(transform.position, transform.forward, -rollAccel * Time.fixedDeltaTime);
+        }
+    }
+
+    
+    void CapSpeed() {
+        Rigidbody rb = GetComponent<Rigidbody>();
+        float speedCap = maxSpeed * sprintSpeedMultiplier;
+        if (rb.velocity.magnitude > maxSpeed) {
+            rb.velocity = rb.velocity.normalized * maxSpeed;
+        }
+    }
 }
