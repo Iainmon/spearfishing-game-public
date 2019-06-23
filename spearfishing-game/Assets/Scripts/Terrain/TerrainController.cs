@@ -22,7 +22,14 @@ public class TerrainController : MonoBehaviour
         {
             for (int k = 0; k < terrain.terrainData.heightmapHeight; k++)
             {
-                heights[i, k] = Mathf.PerlinNoise(((float)i / (float)terrain.terrainData.heightmapWidth) * tileSize, ((float)k / (float)terrain.terrainData.heightmapHeight) * tileSize) / 10.0f;
+                heights[i, k] = Mathf.PerlinNoise(
+                    (
+                        (float)i / (float)terrain.terrainData.heightmapWidth
+                    ) * tileSize,
+                    (
+                        (float)k / (float)terrain.terrainData.heightmapHeight
+                    ) * tileSize
+                    ) / 10.0f;
             }
         }
 
