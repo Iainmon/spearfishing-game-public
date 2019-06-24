@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PostProcessing;
 
-public class CameraEffects : MonoBehaviour {
+public class CameraWaterFX : MonoBehaviour {
 
     public float waterHeight;
     public float maxDepth;
@@ -17,6 +17,9 @@ public class CameraEffects : MonoBehaviour {
     public PostProcessingProfile SurfaceProfile;
     public PostProcessingProfile UnderwaterProfile;
 
+    //public ParticleSystem ambientParticles;
+    public ParticleSystemRenderer ambientParticles;
+
 
 
     void Start() {
@@ -27,6 +30,7 @@ public class CameraEffects : MonoBehaviour {
         if (GetDepth() <= 0) { // Above water
             RenderSettings.fogDensity = 0;
             GetComponent<PostProcessingBehaviour>().profile = SurfaceProfile;
+            ambientParticles.enabled = false;
         }
         else { // Underwater
             Color fogColor = Color.Lerp(shallowColor, deepColor, GetDepth() / maxDepth);
@@ -34,6 +38,7 @@ public class CameraEffects : MonoBehaviour {
             RenderSettings.fogColor = fogColor;
             RenderSettings.fogDensity = fogDensity;
             GetComponent<UnityEngine.PostProcessing.PostProcessingBehaviour>().profile = UnderwaterProfile;
+            ambientParticles.enabled = true;
         }
     }
 
