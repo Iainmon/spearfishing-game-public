@@ -9,39 +9,56 @@ public class Chunk : MonoBehaviour
     public int chunkOffsetX = 0;
     public int chunkOffsetY = 0;
 
+    public float seed = 200.0f;
+
     //Vector3[] newVertices;
     Vector2[] newUV;
     int[] newTriangles;
 
-    void Start() {
-        
-        Mesh mesh = GetComponent<MeshFilter>().mesh;
-        Vector3[] vertices = mesh.vertices;
-        Vector3[] normals = mesh.normals;
+    public float power = 300.0f;
+    public float scale = 1.0f;
+    private Vector2 v2SampleStart = new Vector2(21.2019f, 21.2019f);
 
-        for (int i = 0; i < chunkSize; i++)
-        {
-            for (int k = 0; k < chunkSize; k++)
-            {
-                float actualX = (float)(i + (chunkOffsetX * chunkSize));
-                float actualY = (float)(k + (chunkOffsetY * chunkSize));
+    void Start()
+    {
+        seed += chunkOffsetX * chunkSize;
+        print(seed);
 
-                vertices[i * chunkSize + k].y = Mathf.PerlinNoise(actualX, actualY);
-            }
-        }
+        v2SampleStart.x = chunkOffsetX * chunkSize + 0.1f;
+        v2SampleStart.y = chunkOffsetY * chunkSize + 0.1f;
 
-        mesh.vertices = vertices;
-        mesh.;
-        //mesh.uv = newUV;
-        //mesh.triangles = newTriangles;
+        print("x: " + v2SampleStart.x + " y:" + v2SampleStart.y);
+
+        Noise();
     }
 
-    public Vector3[,] GenerateHeights(Vector3[,] vertices, float tileSize)
+    void Update()
     {
-        //float[,] heights = new float[terrain.terrainData.heightmapWidth, terrain.terrainData.heightmapHeight];
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            //v2SampleStart = new Vector2(Random.Range (0.0f, 100.0f), Random.Range (0.0f, 100.0f));
+            //v2SampleStart = new Vector2(chunkOffsetX * chunkSize, chunkOffsetY * chunkSize);
+            Noise();
+        }
+    }
 
+    void Noise()
+    {
+        MeshFilter mf = GetComponent<MeshFilter>();
+        Vector3[] vertices = mf.mesh.vertices;
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            float xCoord = v2SampleStart.x + vertices[i].x;
+            float yCoord = v2SampleStart.y + vertices[i].z;
+            
+            float noiseValue = Mathf.PerlinNoise(xCoord + seed, yCoord + seed) - 0.05f;
 
-        return vertices;
-        //terrain.terrainData.SetHeights(0, 0, heights);
+            vertices[i].y = noiseValue * power;
+            
+            print(noiseValue);
+        }
+        mf.mesh.vertices = vertices;
+        mf.mesh.RecalculateBounds();
+        mf.mesh.RecalculateNormals();
     }
 }
