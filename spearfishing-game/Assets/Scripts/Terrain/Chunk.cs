@@ -21,7 +21,6 @@ public class Chunk : MonoBehaviour
 
     void Start()
     {
-        seed += chunkOffsetX * chunkSize;
         print(seed);
 
         v2SampleStart.x = chunkOffsetX * chunkSize + 0.1f;
@@ -49,9 +48,9 @@ public class Chunk : MonoBehaviour
         for (int i = 0; i < vertices.Length; i++)
         {
             float xCoord = v2SampleStart.x + vertices[i].x;
-            float yCoord = v2SampleStart.y + vertices[i].z;
+            float zCoord = v2SampleStart.y + vertices[i].z;
             
-            float noiseValue = Mathf.PerlinNoise(xCoord + seed, yCoord + seed) - 0.05f;
+            float noiseValue = Mathf.PerlinNoise(xCoord * 0.1f, zCoord * 0.1f);
 
             vertices[i].y = noiseValue * power;
             
