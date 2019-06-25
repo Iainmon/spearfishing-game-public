@@ -30,10 +30,14 @@ public class ChunkController : MonoBehaviour
         }
     }
     void fixedUpdate() {
-        Vector2 playerPosition = new Vector2(player.transform.position.x, player.transform.position.y);
+        Vector2 playerPosition = new Vector2(player.transform.position.x, player.transform.position.z);
 
-        Vector2 maxRenderBoundry = new Vector2(playerPosition.x * renderDistance, playerPosition.y * renderDistance);
+        Vector2 maxRenderBoundry = new Vector2(Mathf.Floor(playerPosition.x) / 5, Mathf.Floor(playerPosition.y) / 5);
         
+        if (maxRenderBoundry.x > 0) {
+            print("hello");
+        }
+
         if (playerPosition.x > renderOffset.x * renderDistance) {
             LoadChunks(renderDistance, true);
         }

@@ -17,13 +17,13 @@ public class Chunk : MonoBehaviour
 
     public float power = 1.0f;
     public float scale = 1.0f;
-    private Vector2 v2SampleStart = new Vector2(21.2019f, 21.2019f);
+    private Vector2 chunkStartLocation = new Vector2(21.2019f, 21.2019f);
 
     void Start()
     {
 
-        v2SampleStart.x = chunkOffsetX * chunkSize + 0.1f;
-        v2SampleStart.y = chunkOffsetY * chunkSize + 0.1f;
+        chunkStartLocation.x = chunkOffsetX * chunkSize + 0.1f;
+        chunkStartLocation.y = chunkOffsetY * chunkSize + 0.1f;
         Noise();
     }
 
@@ -33,14 +33,13 @@ public class Chunk : MonoBehaviour
         Vector3[] vertices = mf.mesh.vertices;
         for (int i = 0; i < vertices.Length; i++)
         {
-            float xCoord = v2SampleStart.x + vertices[i].x;
-            float zCoord = v2SampleStart.y + vertices[i].z;
+            float xCoord = chunkStartLocation.x + vertices[i].x;
+            float zCoord = chunkStartLocation.y + vertices[i].z;
             
             float noiseValue = Mathf.PerlinNoise(xCoord * 0.15f, zCoord * 0.15f);
 
             vertices[i].y = noiseValue * 10;
             
-            print(noiseValue);
         }
         mf.mesh.vertices = vertices;
         mf.mesh.RecalculateBounds();
