@@ -15,30 +15,16 @@ public class Chunk : MonoBehaviour
     Vector2[] newUV;
     int[] newTriangles;
 
-    public float power = 300.0f;
+    public float power = 1.0f;
     public float scale = 1.0f;
     private Vector2 v2SampleStart = new Vector2(21.2019f, 21.2019f);
 
     void Start()
     {
-        print(seed);
 
         v2SampleStart.x = chunkOffsetX * chunkSize + 0.1f;
         v2SampleStart.y = chunkOffsetY * chunkSize + 0.1f;
-
-        print("x: " + v2SampleStart.x + " y:" + v2SampleStart.y);
-
         Noise();
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            //v2SampleStart = new Vector2(Random.Range (0.0f, 100.0f), Random.Range (0.0f, 100.0f));
-            //v2SampleStart = new Vector2(chunkOffsetX * chunkSize, chunkOffsetY * chunkSize);
-            Noise();
-        }
     }
 
     void Noise()
@@ -50,14 +36,17 @@ public class Chunk : MonoBehaviour
             float xCoord = v2SampleStart.x + vertices[i].x;
             float zCoord = v2SampleStart.y + vertices[i].z;
             
-            float noiseValue = Mathf.PerlinNoise(xCoord * 0.1f, zCoord * 0.1f);
+            float noiseValue = Mathf.PerlinNoise(xCoord * 0.15f, zCoord * 0.15f);
 
-            vertices[i].y = noiseValue * power;
+            vertices[i].y = noiseValue * 10;
             
             print(noiseValue);
         }
         mf.mesh.vertices = vertices;
         mf.mesh.RecalculateBounds();
         mf.mesh.RecalculateNormals();
+
+        GetComponent<MeshCollider>().sharedMesh = null;
+        GetComponent<MeshCollider>().sharedMesh = mf.mesh;
     }
 }
