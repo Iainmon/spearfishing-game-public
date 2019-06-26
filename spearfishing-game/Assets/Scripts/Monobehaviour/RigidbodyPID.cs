@@ -17,7 +17,6 @@ public class RigidbodyPID : MonoBehaviour
     {
         MatchRotation();
         MatchPosition();
-
     }
 
 
@@ -41,7 +40,7 @@ public class RigidbodyPID : MonoBehaviour
         pidv = Quaternion.Inverse(rotInertia2World) * pidv;
         pidv.Scale(rigidbody.inertiaTensor);
         pidv = rotInertia2World * pidv;
-        rigidbody.AddTorque(pidv);
+        rigidbody.AddTorque(pidv * Time.fixedDeltaTime * 200);
     }
 
 
@@ -58,6 +57,6 @@ public class RigidbodyPID : MonoBehaviour
         Vector3 Pt0 = transform.position;
         Vector3 Vt0 = rigidbody.velocity;
         Vector3 F = (Pdes - Pt0) * ksg + (Vdes - Vt0) * kdg;
-        rigidbody.AddForce(F);
+        rigidbody.AddForce(F * Time.fixedDeltaTime * 200);
     }
 }
