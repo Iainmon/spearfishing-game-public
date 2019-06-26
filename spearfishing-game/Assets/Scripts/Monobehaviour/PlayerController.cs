@@ -18,10 +18,6 @@ public class PlayerController : MonoBehaviour
     [Header("Rotation")]
     public float rollAccel;
     public float lookSpeed;
-
-    [Header("Enviroment")]
-    public float underwaterDrag;
-    public float underwaterAngularDrag;
     
    
     void Start()
@@ -30,32 +26,12 @@ public class PlayerController : MonoBehaviour
     }
 
     void FixedUpdate() {
-        if (transform.position.y <= 0) {
+        if (transform.position.y <= GetComponent<WaterPhysics>().surfaceOffset) {
             Move();
-            UnderwaterPhysics();
         }
-        else {
-            SurfacePhysics();
-        }
-
         Rotate();
         CapSpeed();
     }
-
-
-    void UnderwaterPhysics() {
-        GetComponent<Rigidbody>().useGravity = false;
-        GetComponent<Rigidbody>().angularDrag = underwaterAngularDrag;
-        GetComponent<Rigidbody>().drag = underwaterDrag;
-    }
-
-
-    void SurfacePhysics() {
-        GetComponent<Rigidbody>().useGravity = true;
-        GetComponent<Rigidbody>().angularDrag = 0;
-        GetComponent<Rigidbody>().drag = 0;
-    }
-
 
     void Move() {
         Rigidbody rb = GetComponent<Rigidbody>();

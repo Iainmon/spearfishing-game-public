@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GunController : MonoBehaviour
-{
+public class GunController : MonoBehaviour {
+
+    [Header ("Spears")]
     public GameObject speargun;
     public GameObject speargunTarget;
+    public GameObject spearModel;
 
     [Header("Aiming")]
     public GameObject aimPosition;
@@ -16,24 +18,24 @@ public class GunController : MonoBehaviour
 
     [Header("Shooting")]
     public GameObject spearPrefab;
-    public GameObject loadedSpear;
-    public GameObject spearLoadPosition;
+    public GameObject spearSpawnPosition;
+    [System.NonSerialized]
+    public bool isLoaded = true;
     public float spearSpeed;
     public float recoilForce;
     public float recoilTorque;
     public float reloadTime;
-    
+
     [System.NonSerialized]
     public bool isReloading = false;
 
 
-    void Start()
-    {
-        
+    void Start() {
+
     }
 
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
+        // Aiming
         if (Input.GetKey(KeyCode.Mouse1)) {
             AimGun();
         }
@@ -41,33 +43,47 @@ public class GunController : MonoBehaviour
             RestGun();
         }
 
-        if (loadedSpear != null) {
-            if (Input.GetKey(KeyCode.Mouse0)) {
-                Shoot();
-            }
+        if (isLoaded) {
+            Loaded();
         }
-        else {
-            if (Input.GetKey(KeyCode.R) && isReloading == false) {
-                StartCoroutine(Reload());
-            }
+        else { // If Unloaded
+            Unloaded();
         }
-        
+
     }
 
+
+    void Loaded(){
+        spearModel.SetActive(true);
+        if (Input.GetKey(KeyCode.Mouse0)) {
+            Shoot();
+        }
+
+    }
+
+
+    void Unloaded() {
+        spearModel.SetActive(false);
+        if (Input.GetKey(KeyCode.R) && isReloading == false) {
+            StartCoroutine(Reload());
+        }
+    }
+
+
     void Shoot() {
-        loadedSpear.transform.parent = null;
-        loadedSpear.GetComponent<Rigidbody>().isKinematic = false;
-        loadedSpear.GetComponent<Rigidbody>().velocity = loadedSpear.transform.forward * spearSpeed + GetComponent<Rigidbody>().velocity;
-        loadedSpear.GetComponent<SpearManager>().canStabFish = true;
-        loadedSpear = null;
+        GameObject shotSpear = Instantiate(spearPrefab, spearSpawnPosition.transform.position, spearSpawnPosition.transform.rotation);
+        shotSpear.GetComponent<Rigidbody>().velocity = shotSpear.transform.forward * spearSpeed + GetComponent<Rigidbody>().velocity;
+        shotSpear.GetComponent<SpearManager>().canStabFish = true;
         speargun.GetComponent<Rigidbody>().velocity += -speargun.transform.forward * recoilForce;
         speargun.GetComponent<Rigidbody>().angularVelocity += -speargun.transform.right * recoilTorque;
+        isLoaded = false;
     }
+
 
     IEnumerator Reload() {
         isReloading = true;
         yield return new WaitForSeconds(reloadTime);
-        loadedSpear = Instantiate(spearPrefab, spearLoadPosition.transform.position, spearLoadPosition.transform.rotation, speargun.transform);
+        isLoaded = true;
         isReloading = false;
     }
 
